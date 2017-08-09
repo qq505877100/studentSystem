@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd ">
+    <context:component-scan base-package="com.biz.stu.controller"></context:component-scan>
+
+    <!--注册日期转换器-->
+    <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean id="dateConvert" class="com.biz.stu.converters.DateConverter"/>
+            </set>
+        </property>
+    </bean>
+    <!-- 第一步:  创建自定义日期转换规则 -->
+
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsps/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!--配置解析器，实现图片上传-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8" />
+         <!-- 指定所上传文件的总大小10M,单位字节。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->
+        <property name="maxUploadSize" value="10240000" />
+    </bean>
+
+    <mvc:interceptors>
+        <!--解决延迟加载时无session的问题-->
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean name="openEntityManagerInViewInterceptor"
+                  class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor">
+                <property name="entityManagerFactory" ref="entityManagerFactory"></property>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
